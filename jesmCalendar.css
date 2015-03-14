@@ -1,0 +1,107 @@
+.jesmCalendarEl{
+	width:250px !important;
+	padding:0 !important;
+	overflow:hidden !important;
+	position:absolute !important;
+	border:1px solid #666 !important;
+	opacity:0;
+	display:none;
+	background:#FFF !important;
+	background:rgba(255, 255, 255, .8) !important;
+	border-radius:5px !important;
+	font:14px/1.5em "Segoe UI", Verdana, Geneva, sans-serif;
+	color:#333;
+	z-index:9999;
+	text-align:center;
+	box-shadow:1px 1px 5px;
+}
+.jesmCalendarEl, .jesmCalendarEl *{
+	margin:0;
+	padding:0;
+}
+.jesmCalendarEl h1{
+	height:25px;
+	color:#FFF;
+	background:#666;
+	font-size:15px;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	-webkit-user-select:none;
+	-o-user-select:none;
+	user-select:none;
+}
+.jesmCalendarEl h1 span{
+	float:left;
+	display:block;
+	line-height:25px;
+}
+.jesmCalendarEl h1 span.title{
+	width:190px;
+	cursor:move;
+}
+.jesmCalendarEl h1 span.left, .jesmCalendarEl h1 span.right{
+	width:30px;
+	cursor:pointer;
+	font-family:sans-serif;
+}
+.jesmCalendarEl h1 span.left:hover, .jesmCalendarEl h1 span.right:hover{
+	background:#555;
+}
+.jesmCalendarEl h1 span.left:active, .jesmCalendarEl h1 span.right:active{
+	background:#222;
+}
+
+
+.jesmCalendarEl div.tables{
+	overflow:hidden;
+	padding-top:15px;
+}
+.jesmCalendarEl div.tables ul.meses{
+	list-style:none;
+}
+.jesmCalendarEl div.tables ul.meses li{
+	float:left;
+	width:250px;
+}
+.jesmCalendarEl div.tables ul.meses li table{
+	margin:auto;
+	width:220px;
+	border-collapse:collapse;
+}
+.jesmCalendarEl div.tables ul.meses li table tr{
+	margin-bottom:5px;
+}
+.jesmCalendarEl div.tables ul.meses li table th, .jesmCalendarEl div.tables ul.meses li table td{
+	border:1px solid #666;
+}
+.jesmCalendarEl div.tables ul.meses li table th{
+	font-weight:bold;
+	background:#CCC;
+}
+.jesmCalendarEl div.tables ul.meses li table td{
+	cursor:pointer;
+	background:#FFF;
+}
+.jesmCalendarEl div.tables ul.meses li table td:hover{
+	background:#CCC;
+}
+.jesmCalendarEl div.tables ul.meses li table td:active{
+	background:#AAA;
+}
+.jesmCalendarEl div.tables ul.meses li table td.invalid{
+	cursor:default;
+	background:#DDD;
+	text-decoration:line-through;
+	color:#666;
+}
+
+.jesmCalendarEl a.fechar_close{
+	text-decoration:none;
+	color:#333;
+	display:block;
+	margin:5px auto 10px;
+	font-weight:normal;
+}
+.jesmCalendarEl a.fechar_close:hover{
+	text-decoration:underline;
+}

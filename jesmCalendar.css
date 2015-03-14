@@ -1,107 +1,145 @@
-.jesmCalendarEl{
-	width:250px !important;
-	padding:0 !important;
-	overflow:hidden !important;
-	position:absolute !important;
-	border:1px solid #666 !important;
-	opacity:0;
+.jesm_calendar{
+	width:214px!important;
+	padding:0!important;
+	overflow:hidden!important;
+	position:absolute!important;
 	display:none;
-	background:#FFF !important;
-	background:rgba(255, 255, 255, .8) !important;
-	border-radius:5px !important;
-	font:14px/1.5em "Segoe UI", Verdana, Geneva, sans-serif;
-	color:#333;
+	background:#FFF!important;
+	background:rgba(102, 102, 102, .6)!important;
+	font:14px/1.5 Helvetica, Arial, sans-serif;
+	color:#444;
 	z-index:9999;
-	text-align:center;
 	box-shadow:1px 1px 5px;
+	border:1px solid #444;
 }
-.jesmCalendarEl, .jesmCalendarEl *{
+.jesm_calendar a{
+	text-decoration:none;
+	color:#FFF;
+}
+.jesm_calendar, .jesm_calendar *{
 	margin:0;
 	padding:0;
 }
-.jesmCalendarEl h1{
-	height:25px;
-	color:#FFF;
-	background:#666;
-	font-size:15px;
-	-moz-user-select:none;
-	-ms-user-select:none;
-	-webkit-user-select:none;
-	-o-user-select:none;
-	user-select:none;
-}
-.jesmCalendarEl h1 span{
-	float:left;
-	display:block;
-	line-height:25px;
-}
-.jesmCalendarEl h1 span.title{
-	width:190px;
-	cursor:move;
-}
-.jesmCalendarEl h1 span.left, .jesmCalendarEl h1 span.right{
-	width:30px;
-	cursor:pointer;
-	font-family:sans-serif;
-}
-.jesmCalendarEl h1 span.left:hover, .jesmCalendarEl h1 span.right:hover{
-	background:#555;
-}
-.jesmCalendarEl h1 span.left:active, .jesmCalendarEl h1 span.right:active{
-	background:#222;
-}
-
-
-.jesmCalendarEl div.tables{
+.jesm_calendar .cabeca{
 	overflow:hidden;
-	padding-top:15px;
+	color:#FFF;
+	background:#444;
+	line-height:25px;
+	font-size:15px;
+	user-select:none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 }
-.jesmCalendarEl div.tables ul.meses{
-	list-style:none;
+.jesm_calendar .seta, .jesm_calendar .title{
+	padding:5px;
+	text-align:center;
 }
-.jesmCalendarEl div.tables ul.meses li{
+.jesm_calendar .seta{
+	width:20px;
+}
+.jesm_calendar .seta:hover{
+	background:#999;
+}
+.jesm_calendar .seta:active{
+	background:#BBB;
+}
+.jesm_calendar .seta.esq{
 	float:left;
-	width:250px;
 }
-.jesmCalendarEl div.tables ul.meses li table{
-	margin:auto;
-	width:220px;
-	border-collapse:collapse;
+.jesm_calendar .seta.dir{
+	float:right;
 }
-.jesmCalendarEl div.tables ul.meses li table tr{
-	margin-bottom:5px;
+.jesm_calendar .title{
+	width:144px;
+	margin:0 30px;
+	cursor:default;
 }
-.jesmCalendarEl div.tables ul.meses li table th, .jesmCalendarEl div.tables ul.meses li table td{
-	border:1px solid #666;
+.jesm_calendar .title.grab{
+	cursor:move;
+	cursor:-moz-grab;
+	cursor:-webkit-grab;
+	cursor:grab;
 }
-.jesmCalendarEl div.tables ul.meses li table th{
+.jesm_calendar .title.grabbing{
+	cursor:-moz-grabbing;
+	cursor:-webkit-grabbing;
+	cursor:grabbing;
+}
+.jesm_calendar .title span{
+	display:inline-block;
 	font-weight:bold;
-	background:#CCC;
+	margin:0 2px;
 }
-.jesmCalendarEl div.tables ul.meses li table td{
+
+.jesm_calendar .main{
+	width:100%;
+}
+.jesm_calendar .main table{
+	width:100%;
+	position:relative;
+	border-collapse:collapse;
+	table-layout:fixed;
+}
+.jesm_calendar .main .head{
+	background:#666;
+}
+.jesm_calendar .main .head th{
+	color:#FFF;
+	padding:2px;
+}
+.jesm_calendar div.tables{
+	overflow:hidden;
+	position:relative;
+}
+.jesm_calendar div.meses{
+	position:relative;
+}
+.jesm_calendar table th, .jesm_calendar table td{
+	height:20px;
+	text-align:center;
+	vertical-align:middle;
+}
+.jesm_calendar table th{
+	font-weight:bold;
+}
+
+.jesm_calendar table td{
+	border:1px solid #AAA;
+}
+.jesm_calendar table td a{
+	display:block;
+	height:26px;
+	line-height:26px;
+	background:#666;
+	transition:all .5s;
+	-webkit-transition:all .5s;
+	-moz-transition:all .5s;
+	cursor:default;
+}
+.jesm_calendar table td a.ativo{
+	background:#999;
 	cursor:pointer;
+}
+.jesm_calendar table td a.ativo.atual{
+	background:#EAEAEA;
+	color:#333;
+}
+.jesm_calendar table td a.ativo.atual:hover{
+	background:#666;
+	color:#EFEFEF;
+}
+.jesm_calendar table td a.ativo.atual:active{
 	background:#FFF;
 }
-.jesmCalendarEl div.tables ul.meses li table td:hover{
-	background:#CCC;
-}
-.jesmCalendarEl div.tables ul.meses li table td:active{
-	background:#AAA;
-}
-.jesmCalendarEl div.tables ul.meses li table td.invalid{
-	cursor:default;
-	background:#DDD;
-	text-decoration:line-through;
-	color:#666;
+.jesm_calendar table td span:hover{
+	background:#FFF;
 }
 
-.jesmCalendarEl a.fechar_close{
-	text-decoration:none;
-	color:#333;
+.jesm_calendar a.fechar{
 	display:block;
-	margin:5px auto 10px;
-	font-weight:normal;
-}
-.jesmCalendarEl a.fechar_close:hover{
-	text-decoration:underline;
+	width:50px;
+	text-align:center;
+	margin:auto;
+	line-height:22px;
 }

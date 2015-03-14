@@ -11,9 +11,11 @@ Jesm.Drag=function(el, from, ctxtEl){
 	
 	this.el=Jesm.pega(el);
 	this.from=from||el;
+	this.ctxtEl=ctxtEl;
 	this.fixed=Jesm.Cross.getStyle(el, 'position')=='fixed';
 	/*
 		EVENTOS QUE PODEM SER COLOCADOS:
+		this.onBeforeDragStart;
 		this.onDragStart;
 		this.onDragHover;
 		this.onDrop;
@@ -21,7 +23,9 @@ Jesm.Drag=function(el, from, ctxtEl){
 		this.onFailDrop;
 	*/
 	
-	this.clicar=function(ev){
+	this.clicar=function(ev){		
+		if(this.onBeforeDragStart)
+			this.onBeforeDragStart();
 		var disEl=Jesm.Cross.offset(this.el, null, true), mouse=Jesm.Cross.getMouse(ev);
 		
 		for(var x=2;x--;this.disClick[x]=mouse[x]-disEl[x]);
@@ -37,8 +41,8 @@ Jesm.Drag=function(el, from, ctxtEl){
 	this.setCoord=function(posFinal){
 		if(this.ativo){
 			var r=[0, 0];
-			if(ctxtEl)
-				r=Jesm.Cross.offset(ctxtEl, null, true);
+			if(this.ctxtEl)
+				r=Jesm.Cross.offset(this.ctxtEl, null, true);
 			else if(!this.fixed)
 				for(var pof=Jesm.Cross.pageOffset(), x=2;x--;r[x]-=pof[x]);
 			for(var x=2;x--;){
@@ -100,12 +104,12 @@ Jesm.Drag=function(el, from, ctxtEl){
 	
 	
 	this.setCursor=function(a){
-            if(this.cursorAtual)
-                this.from.classList.remove(this.cursorAtual);
-            this.from.classList.add(this.cursorAtual=a);
+		if(this.cursorAtual)
+		    this.from.classList.remove(this.cursorAtual);
+		this.from.classList.add(this.cursorAtual=a);
 	};
 	
-	Jesm.css(this.from, "webkitUserSelect:none;MozUserSelect:none;msUserSelect:none;userSelect:none").setAttribute("unselectable", "on");// For IE and Opera
+	Jesm.css(this.from, "webkitUserSelect:none;MozUserSelect:none;msUserSelect:none;userSelect:none").setAttribute("unselectable", "on"); // For IE and Opera
 	this.setCursor("grab");
 	Jesm.addEvento(this.from, "mousedown,touchstart", function(e){
 		var el=e.target;
@@ -140,25 +144,26 @@ Jesm.Core.drag={
 		return this;
 	},
 	comecar:function(){
-		var b=document.body;
+		// TODO: testar isso no IE!
+		var b=document.body, w=window;
 				
-		this.storeEvents.move=Jesm.addEvento(b, "mousemove,touchmove", function(e){
+		this.storeEvents.move=Jesm.addEvento(w, "mousemove,touchmove", function(e){
 			this.coords=Jesm.Cross.getMouse(e);
 			if(Jesm.isTouchEvent(e))
 				e.stopPropagation();
 		}, this, true);
 		
-		this.storeEvents.up=Jesm.addEvento(b, "mouseup,touchend", function(e){
+		this.storeEvents.up=Jesm.addEvento(w, "mouseup,touchend", function(e){
 			this.drop();
 			if(Jesm.isTouchEvent(e))
 				e.stopPropagation();
 		}, this, true);
 		
-		var docEl=document.documentElement;
-		this.storeEvents.out=Jesm.addEvento(docEl, "mouseout", function(e){
-			if(e.target==docEl)
-				this.drop();
-		}, this, true);
+		// var docEl=document.documentElement;
+		// this.storeEvents.out=Jesm.addEvento(docEl, "mouseout", function(e){
+		// 	if(e.target==docEl)
+		// 		this.drop();
+		// }, this, true);
 		
 		this.iterate();
 		Jesm.Core.animator.addTarefa(this.iterate, this);
@@ -185,5 +190,23 @@ Jesm.Core.drag={
 				return false;
 		}
 		return true;
+	},
+
+	getContainFunction:function(){
+		return function(arr){
+			var c=this.ctxtEl||document.body,
+			cs=Jesm.Cross.offsetSize(c),
+			es=Jesm.Cross.offsetSize(this.el);
+
+			for(var x=2;x--;){
+				var t=arr[x]+es[x];
+				if(arr[x]<0)
+					arr[x]=0;
+				else if(t>cs[x]&&cs[x]>=es[x])
+					arr[x]+=cs[x]-t;
+			}
+
+			return arr;
+		};
 	}
 };

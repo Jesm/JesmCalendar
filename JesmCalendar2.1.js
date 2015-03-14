@@ -183,10 +183,10 @@ Jesm.Calendar=function(config){
 						data:[d[0], d[1], dia],
 						el:Jesm.el('a', 'href=javascript:void(0)', Jesm.el('td', null, tr), dia),
 						setAtivo:function(bool){
-							this.el[((this.ativo=bool)?'add':'remover')+'Classe']('ativo');
+							this.el.classList[(this.ativo=bool)?'add':'remove']('ativo');
 						},
 						setAtual:function(bool){
-							this.el[((this.atual=bool)?'add':'remover')+'Classe']('atual');
+							this.el.classList[(this.ativo=bool)?'add':'remove']('atual');
 						}
 					};
 					ret.el.onclick=function(){
@@ -269,9 +269,20 @@ Jesm.Calendar=function(config){
 		return this;
 	};
 	
-	this.fechar=function(){
-		this.animas.opacidade.go(.25, [0], 'none');
+	this.fechar=function(destroy){
+		var callback='none';
+		if(destroy===true){
+			var THIS=this;
+			callback=function(){
+				THIS.destroy();
+			};
+		}
+		this.animas.opacidade.go(.25, [0], callback);
 		return this;
+	};
+
+	this.destroy=function(){
+		this.els.main.del();
 	};
 	
 	this.clique=function(td){
@@ -282,7 +293,10 @@ Jesm.Calendar=function(config){
 	
 	this.associarInput=function(input, depois){
 		this.els.input=input;
-		this.onselect=depois;
+		this.onselect=depois||function(d){
+			this.els.input.value=this.formatar('d/m/Y', d);
+			this.els.input.blur();
+		};
 		Jesm.addEvento(input, 'focus', function(){
 			var dimTela=(config.elHolder?Jesm.Cross.offsetSize(config.elHolder):Jesm.Cross.inner())[0], disEl=Jesm.Cross.offset(input), dimEl=Jesm.Cross.client(input), left, top;
 			if(dimTela-disEl[0]-dimEl[0]>250){
@@ -329,7 +343,7 @@ Jesm.Calendar=function(config){
 		this.atualizarMes();
 		this.func.pronto=true;
 		if(Jesm.Core.drag){
-			var drag=new Jesm.Drag(this.els.main, this.els.titulo.addClasse('grab'));
+			var drag=new Jesm.Drag(this.els.main, this.els.titulo.classList.add('grab'));
 			drag.onDragStart=function(){
 				THIS.animas.opacidade.go(.25, [.7]);
 			};

@@ -13,15 +13,14 @@ Jesm.Drag=function(el, from, ctxtEl){
 	this.from=from||el;
 	this.ctxtEl=ctxtEl;
 	this.fixed=Jesm.Cross.getStyle(el, 'position')=='fixed';
-	/*
-		EVENTOS QUE PODEM SER COLOCADOS:
-		this.onBeforeDragStart;
-		this.onDragStart;
-		this.onDragHover;
-		this.onDrop;
-		this.onSucessDrop;
-		this.onFailDrop;
-	*/
+
+	// Events that can be set in the instance:
+	this.onBeforeDragStart=null;
+	this.onDragStart=null;
+	this.onDragHover=null;
+	this.onDrop=null;
+	this.onSucessDrop=null;
+	this.onFailDrop=null;
 	
 	this.clicar=function(ev){		
 		if(this.onBeforeDragStart)
@@ -144,26 +143,19 @@ Jesm.Core.drag={
 		return this;
 	},
 	comecar:function(){
-		// TODO: testar isso no IE!
-		var b=document.body, w=window;
+		var el=Jesm.oldIE()?document.documentElement:window;
 				
-		this.storeEvents.move=Jesm.addEvento(w, "mousemove,touchmove", function(e){
+		this.storeEvents.move=Jesm.addEvento(el, "mousemove,touchmove", function(e){
 			this.coords=Jesm.Cross.getMouse(e);
 			if(Jesm.isTouchEvent(e))
 				e.stopPropagation();
 		}, this, true);
 		
-		this.storeEvents.up=Jesm.addEvento(w, "mouseup,touchend", function(e){
+		this.storeEvents.up=Jesm.addEvento(document, "mouseup,touchend", function(e){
 			this.drop();
 			if(Jesm.isTouchEvent(e))
 				e.stopPropagation();
 		}, this, true);
-		
-		// var docEl=document.documentElement;
-		// this.storeEvents.out=Jesm.addEvento(docEl, "mouseout", function(e){
-		// 	if(e.target==docEl)
-		// 		this.drop();
-		// }, this, true);
 		
 		this.iterate();
 		Jesm.Core.animator.addTarefa(this.iterate, this);

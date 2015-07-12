@@ -1,0 +1,6 @@
+[submodule "example/js/Jesm"]
+	path = example/js/Jesm
+	url = https://github.com/jszablevski/Jesm
+[submodule "example/js/JesmDrag"]
+	path = example/js/JesmDrag
+	url = https://github.com/jszablevski/JesmDrag

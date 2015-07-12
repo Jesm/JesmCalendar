@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Untitled Document</title>
+	<link rel="stylesheet" href="../JesmCalendar.css">
+	<style>
+		html, body{
+			width:100%;
+			height:100%;
+		}
+	</style>
+</head>
+
+<body>
+	<input><br/>
+	<input>
+	
+	<script src="js/Jesm/Jesm4.min.js"></script>
+	<script src="js/JesmDrag/JesmDrag.js"></script>
+	<script src="../JesmCalendar2.1.js"></script>
+	<script>
+		var inputs=pega('input'), bloqueioP=new Date(), bloqueioF=new Date();
+		bloqueioP.setMonth(bloqueioP.getMonth()-2);
+		bloqueioP.setDate(1);
+		bloqueioF.setMonth(bloqueioF.getMonth()+6);
+		var cfgBase={
+			dias:['Do', 'Se', 'Te', 'Qu', 'Qu', 'Se', 'Sa'],
+			comecoSemana:1,
+			limitePassado:bloqueioP,
+			limiteFuturo:bloqueioF
+		};
+		var c1=new Jesm.Calendar(cfgBase), c2=new Jesm.Calendar(cfgBase);
+		c1.associarInput(inputs[0], function(d){
+			this.els.input.value=this.formatar('d/m/Y', d);
+			c2.setLimite('passado', d);
+			inputs[1].value='';
+			inputs[1].focus();
+		});
+		c2.associarInput(inputs[1], function(d){
+			this.els.input.value=this.formatar('d/m/Y', d);
+		});
+	</script>
+</body>
+</html>

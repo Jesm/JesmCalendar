@@ -1,6 +1,100 @@
-Jesm.Calendar=function(config){
+'use strict';
+
+Jesm.Calendar=Jesm.createClass({
+
+	__construct:function(config){
+		this.cfg={
+			meses:['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+			dias:['D','2ª','3ª','4ª','5ª','6ª','S'],
+			divisor:'/',
+			comecoSemana:0,
+			diaInicio:new Date(),
+			fecharText:'Fechar'
+		};
+		config=config||{};
+		for(var str in config)
+			this.cfg[str]=config[str];
+		for(var x=2, str=['Passado', 'Futuro'];x--;){
+			var limite=this.cfg['limite'+str[x]];
+			if(!limite)
+				continue;
+			var timeInicio=this.cfg.diaInicio.getTime(), timeLimite=Jesm.Calendar.limparData(limite).getTime();
+			if(x?timeLimite<timeInicio:timeLimite>timeInicio){
+				console.log('Verifique seu limite'+str[x]);
+				return;
+			}
+		}
+		
+		this.func={
+			pronto:false,
+			sit:0,
+			proxSit:[-1, 1],
+			numTr:[0, 0],
+			anos:[],
+			setas:[true, true],
+			top:0,
+			offset:0
+		};
+		this.setDiaInicio(this.cfg.diaInicio);
+		
+		this.els={};
+		this.animas={};
+		var THIS=this, frag=document.createDocumentFragment();
+		
+		this.els.main=Jesm.css(Jesm.el('div', 'class=jesm_calendar', frag), 'opacity:0');
+		this.animas.opacidade=new Jesm.Anima(this.els.main, 'opacity');
+		
+		this.els.cabeca=Jesm.el('div', 'class=cabeca', this.els.main);
+		this.els.setaEsq=Jesm.el('a', 'class=seta esq;href=javascript:void(0)', this.els.cabeca, '&#9664;');
+		this.els.setaDir=Jesm.el('a', 'class=seta dir;href=javascript:void(0)', this.els.cabeca, '&#9654;');
+		this.els.titulo=Jesm.el('div', 'class=title', this.els.cabeca);
+		this.animas.titulo=new Jesm.Anima(this.els.titulo, 'opacity');
+		this.els.tituloMes=Jesm.el('span', 'class=mes', this.els.titulo);
+		this.els.tituloDivisor=Jesm.el('span', 'class=divisor', this.els.titulo, this.cfg.divisor);
+		this.els.tituloAno=Jesm.el('span', 'class=ano', this.els.titulo);
+		
+		this.els.content=Jesm.el('div', 'class=main', this.els.main);
+		this.els.diasSemana=Jesm.el('tr', null, Jesm.el('tbody', null, Jesm.el('table', 'class=head', this.els.content)));
+		for(var x=0;x<7;Jesm.el('th', null, this.els.diasSemana, this.cfg.dias[(this.cfg.comecoSemana+(x++))%7]));
+		this.els.tables=Jesm.el('div', 'class=tables', this.els.content);
+		this.animas.altura=new Jesm.Anima(this.els.tables, 'height');
+		this.els.meses=Jesm.el('div', 'class=meses', this.els.tables);
+		this.animas.cima=new Jesm.Anima(this.els.meses, 'margin-top');
+		this.els.tabelaMeses=Jesm.el('table', null, this.els.meses);
+		this.els.tabelaMesesBody=Jesm.el('tbody', null, this.els.tabelaMeses);
+		
+		this.els.fechar=Jesm.el('a', 'class=fechar;href=javascript:void(0)', this.els.content, this.cfg.fecharText);
+		Jesm.addEvento(this.els.fechar, 'click', this.fechar, this);
+		if(this.cfg.hoje){
+			this.els.hoje=Jesm.el('a', 'class=hoje', this.els.content);
+			Jesm.addEvento(this.els.hoje, 'click', this.irDiaAtual, this);
+		}
+		(config.elHolder||document.body).appendChild(frag);
+		
+		Jesm.addEvento(this.els.setaEsq, 'click', this._previousArrowFunc, this);
+		Jesm.addEvento(this.els.setaDir, 'click', this._nextArrowFunc, this);
+		
+		if(config.clickOut){
+			Jesm.addEvento(document.body, 'click', this._closeButton, this);
+			Jesm.addEvento(this.els.main, 'click', this._stopPropag);
+		}
+	},
+	_previousArrowFunc:function(){
+		if(this.func.setas[0])
+			this.mover(-1);
+	},
+	_nextArrowFunc:function(){
+		if(this.func.setas[1])
+			this.mover(1);
+	},
+	_closeButton:function(){
+		this.fechar();
+	},
+	_stopPropag:function(e){
+		e.stopPropagation();
+	},
 	
-	this.andarMes=function(data, num){
+	andarMes:function(data, num){
 		var nova=data.slice();
 		for(var um=num>0?1:-1;num;num+=um*-1){
 			nova[1]+=um;	
@@ -10,24 +104,24 @@ Jesm.Calendar=function(config){
 			}
 		}
 		return nova;
-	};
+	},
 	
-	this.toDate=function(d){
+	toDate:function(d){
 		return new Date(d[0], d[1], d[2]||1, 0, 0, 0, 0);
-	};
+	},
 	
-	this.toArray=function(d){
+	toArray:function(d){
 		return [d.getFullYear(), d.getMonth()];
-	};
+	},
 	
-	this.compararDatas=function(d1, d2){
+	compararDatas:function(d1, d2){
 		if(d1[0]==d2[0]&&d1[1]==d2[1])
 			return 0;
 		else
 			return (d1[0]<d2[0]||(d1[0]==d2[0]&&d1[1]<d2[1]))?1:-1;
-	};
+	},
 	
-	this.diferencaData=function(d){
+	diferencaData:function(d){
 		d=this.toArray(d);
 		var ret=0;
 		for(var x=0, ma=this.func.mesAtual, cmp;x<2;x++){
@@ -38,9 +132,9 @@ Jesm.Calendar=function(config){
 			}
 		}
 		return ret;
-	};
+	},
 	
-	this.formatar=function(str, d){
+	formatar:function(str, d){
 		var temp={d:'Date',m:'Month',Y:'FullYear'};
 		for(var p in temp){
 			var valor=d['get'+temp[p]]();
@@ -51,14 +145,9 @@ Jesm.Calendar=function(config){
 			str=str.replace(p, valor);
 		}
 		return str;
-	};
+	},
 		
-	function limparData(d){
-		for(var strs=['Hours', 'Minutes', 'Seconds', 'Milliseconds'], x=strs.length;x--;d['set'+strs[x]](0));
-		return d;
-	};
-	
-	this.mover=function(num){
+	mover:function(num){
 		var indo=num>0, um=indo?1:-1, mesVeio=this.func.mesAtual;
 		this.openFrag(indo);
 		for(;num;num+=um*-1){
@@ -90,9 +179,9 @@ Jesm.Calendar=function(config){
 		});
 		
 		this.updateMedidas().verificarSetas().atualizarMes();
-	};
+	},
 
-	this.addMes=function(indo){
+	addMes:function(indo){
 		var objMesAtual=this.getMes(),
 		totalDias=objMesAtual.diasNoMes,
 		diaSemana=objMesAtual.diaSemana,
@@ -137,9 +226,9 @@ Jesm.Calendar=function(config){
 		}
 		
 		this.els.frag.insertBefore(frag, indo?null:this.els.frag.firstChild);
-	};
+	},
 	
-	this.getMes=function(d){
+	getMes:function(d){
 		var THIS=this, anos=this.func.anos;
 		d=d||this.func.mesAtual;
 		if(!anos[d[0]])
@@ -220,9 +309,9 @@ Jesm.Calendar=function(config){
 			anos[d[0]][d[1]]=novoMes;
 		}
 		return anos[d[0]][d[1]];
-	};
+	},
 	
-	this.setLimite=function(str, d){
+	setLimite:function(str, d){
 		str=str.toLowerCase().split('');
 		str[0]=str[0].toUpperCase();
 		str=str.join('');
@@ -238,19 +327,19 @@ Jesm.Calendar=function(config){
 		}
 		else if(dif)
 			this.setDiaInicio(d);
-	}
+	},
 	
-	this.openFrag=function(indo){
+	openFrag:function(indo){
 		this.func.indo=indo;
 		this.els.frag=document.createDocumentFragment();
-	};
+	},
 	
-	this.closeFrag=function(){
+	closeFrag:function(){
 		var tab=this.els.tabelaMesesBody;
 		tab.insertBefore(this.els.frag, this.func.indo?null:tab.firstChild);
-	};
+	},
 	
-	this.atualizarMes=function(){
+	atualizarMes:function(){
 		var THIS=this;
 		this.animas.titulo.go(.25, [0], function(){
 			THIS.els.tituloMes.innerHTML=THIS.cfg.meses[THIS.func.mesAtual[1]];
@@ -258,18 +347,18 @@ Jesm.Calendar=function(config){
 			this.go(.25, [1]);
 		});
 		return this;
-	};
+	},
 	
-	this.abrir=function(x, y){
+	abrir:function(x, y){
 		Jesm.css(this.els.main, 'display:block;left:'+x+'px;top:'+y+'px');
 		this.animas.opacidade.go(.5, [1]);
 		if(!this.func.pronto)
 			this.iniciar();
 		this.updateMedidas();
 		return this;
-	};
+	},
 	
-	this.fechar=function(destroy){
+	fechar:function(destroy){
 		var callback='none';
 		if(destroy===true){
 			var THIS=this;
@@ -279,26 +368,26 @@ Jesm.Calendar=function(config){
 		}
 		this.animas.opacidade.go(.25, [0], callback);
 		return this;
-	};
+	},
 
-	this.destroy=function(){
+	destroy:function(){
 		this.els.main.del();
-	};
+	},
 	
-	this.clique=function(td){
+	clique:function(td){
 		if(this.onselect)
 			this.onselect(this.toDate(td.data));
 		this.fechar();
-	};
+	},
 	
-	this.associarInput=function(input, depois){
+	associarInput:function(input, depois){
 		this.els.input=input;
 		this.onselect=depois||function(d){
 			this.els.input.value=this.formatar('d/m/Y', d);
 			this.els.input.blur();
 		};
 		Jesm.addEvento(input, 'focus', function(){
-			var dimTela=(config.elHolder?Jesm.Cross.offsetSize(config.elHolder):Jesm.Cross.inner())[0], disEl=Jesm.Cross.offset(input), dimEl=Jesm.Cross.client(input), left, top;
+			var dimTela=(this.cfg.elHolder?Jesm.Cross.offsetSize(this.cfg.elHolder):Jesm.Cross.inner())[0], disEl=Jesm.Cross.offset(input), dimEl=Jesm.Cross.client(input), left, top;
 			if(dimTela-disEl[0]-dimEl[0]>250){
 				left=disEl[0]+dimEl[0]+10;
 				top=disEl[1];
@@ -311,28 +400,28 @@ Jesm.Calendar=function(config){
 			this.abrir(left, top);
 		}, this);
 		return this;
-	};
+	},
 	
-	this.verificarSetas=function(){
+	verificarSetas:function(){
 		for(var x=2, str=['Esq', 'Dir'], str1=['Passado', 'Futuro'];x--;){
 			var limite=this.cfg['limite'+str1[x]];
 			if(limite){
-				confere=limite&&this.func.mesAtual[0]==limite.getFullYear()&&this.func.mesAtual[1]==limite.getMonth();
+				var confere=limite&&this.func.mesAtual[0]==limite.getFullYear()&&this.func.mesAtual[1]==limite.getMonth();
 				Jesm.css(this.els['seta'+str[x]], 'visibility:'+(this.func.setas[x]=!confere?'visible':'hidden'));
 			}
 		}
 		return this;
-	};
+	},
 	
-	this.updateMedidas=function(){
+	updateMedidas:function(){
 		var alturaTd=Jesm.Cross.offsetSize(this.els.tabelaMeses.pega('td', 0))[1];
 		this.els.tabelaMeses.style.top='-'+(this.func.top*alturaTd)+'px';
 		this.animas.altura.go(.5, [this.getMes().linhas*alturaTd]);
 		this.animas.cima.go(.5, [-this.func.offset*alturaTd]);
 		return this;
-	}
+	},
 	
-	this.iniciar=function(){
+	iniciar:function(){
 		this.openFrag(true);
 		this.addMes(true);
 		this.closeFrag();
@@ -344,103 +433,26 @@ Jesm.Calendar=function(config){
 		this.func.pronto=true;
 		if(Jesm.Core.drag){
 			var drag=new Jesm.Drag(this.els.main, this.els.titulo.classList.add('grab'));
-			drag.onDragStart=function(){
-				THIS.animas.opacidade.go(.25, [.7]);
-			};
-			drag.onDrop=function(){
-				THIS.animas.opacidade.go(.25, [1]);
-			};
+			drag.data.calendar=this;
+			drag.onDragStart=this._dragStartAux;
+			drag.onDrop=this._dropAux;
 		}
-	};
+	},
+	_dragStartAux:function(){
+		this.data.calendar.animas.opacidade.go(.25, [.7]);
+	},
+	_dropAux:function(){
+		this.data.calendar.animas.opacidade.go(.25, [1]);
+	},
 	
-	this.setDiaInicio=function(d){
+	setDiaInicio:function(d){
 		if(!this.func.pronto)
 			this.func.mesAtual=this.toArray(this.cfg.diaInicio=d);
 	}
-	
-	this.cfg={
-		meses:['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
-		dias:['D','2ª','3ª','4ª','5ª','6ª','S'],
-		divisor:'/',
-		comecoSemana:0,
-		diaInicio:new Date(),
-		fecharText:'Fechar'
-	};
-	config=config||{};
-	for(var str in config)
-		this.cfg[str]=config[str];
-	for(var x=2, str=['Passado', 'Futuro'];x--;){
-		var limite=this.cfg['limite'+str[x]];
-		if(!limite)
-			continue;
-		var timeInicio=this.cfg.diaInicio.getTime(), timeLimite=limparData(limite).getTime();
-		if(x?timeLimite<timeInicio:timeLimite>timeInicio){
-			console.log('Verifique seu limite'+str[x]);
-			return;
-		}
-	}
-	
-	this.func={
-		pronto:false,
-		sit:0,
-		proxSit:[-1, 1],
-		numTr:[0, 0],
-		anos:[],
-		setas:[true, true],
-		top:0,
-		offset:0
-	};
-	this.setDiaInicio(this.cfg.diaInicio);
-	
-	this.els={};
-	this.animas={};
-	var THIS=this, frag=document.createDocumentFragment();
-	
-	this.els.main=Jesm.css(Jesm.el('div', 'class=jesm_calendar', frag), 'opacity:0');
-	this.animas.opacidade=new Jesm.Anima(this.els.main, 'opacity');
-	
-	this.els.cabeca=Jesm.el('div', 'class=cabeca', this.els.main);
-	this.els.setaEsq=Jesm.el('a', 'class=seta esq;href=javascript:void(0)', this.els.cabeca, '&#9664;');
-	this.els.setaDir=Jesm.el('a', 'class=seta dir;href=javascript:void(0)', this.els.cabeca, '&#9654;');
-	this.els.titulo=Jesm.el('div', 'class=title', this.els.cabeca);
-	this.animas.titulo=new Jesm.Anima(this.els.titulo, 'opacity');
-	this.els.tituloMes=Jesm.el('span', 'class=mes', this.els.titulo);
-	this.els.tituloDivisor=Jesm.el('span', 'class=divisor', this.els.titulo, this.cfg.divisor);
-	this.els.tituloAno=Jesm.el('span', 'class=ano', this.els.titulo);
-	
-	this.els.content=Jesm.el('div', 'class=main', this.els.main);
-	this.els.diasSemana=Jesm.el('tr', null, Jesm.el('tbody', null, Jesm.el('table', 'class=head', this.els.content)));
-	for(var x=0;x<7;Jesm.el('th', null, this.els.diasSemana, this.cfg.dias[(this.cfg.comecoSemana+(x++))%7]));
-	this.els.tables=Jesm.el('div', 'class=tables', this.els.content);
-	this.animas.altura=new Jesm.Anima(this.els.tables, 'height');
-	this.els.meses=Jesm.el('div', 'class=meses', this.els.tables);
-	this.animas.cima=new Jesm.Anima(this.els.meses, 'margin-top');
-	this.els.tabelaMeses=Jesm.el('table', null, this.els.meses);
-	this.els.tabelaMesesBody=Jesm.el('tbody', null, this.els.tabelaMeses);
-	
-	this.els.fechar=Jesm.el('a', 'class=fechar;href=javascript:void(0)', this.els.content, this.cfg.fecharText);
-	Jesm.addEvento(this.els.fechar, 'click', this.fechar, this);
-	if(this.cfg.hoje){
-		this.els.hoje=Jesm.el('a', 'class=hoje', this.els.content);
-		Jesm.addEvento(this.els.hoje, 'click', this.irDiaAtual, this);
-	}
-	(config.elHolder||document.body).appendChild(frag);
-	
-	Jesm.addEvento(this.els.setaEsq, 'click', function(){
-		if(this.func.setas[0])
-			this.mover(-1);
-	}, this);
-	Jesm.addEvento(this.els.setaDir, 'click', function(){
-		if(this.func.setas[1])
-			this.mover(1);
-	}, this);
-	
-	if(config.clickOut){
-		Jesm.addEvento(document.body, 'click', function(){
-			this.fechar();
-		}, this);
-		Jesm.addEvento(this.els.main, 'click', function(e){
-			e.stopPropagation();
-		});
-	}
-}
+
+});
+
+Jesm.Calendar.limparData=function(d){
+	for(var strs=['Hours', 'Minutes', 'Seconds', 'Milliseconds'], x=strs.length;x--;d['set'+strs[x]](0));
+	return d;
+};

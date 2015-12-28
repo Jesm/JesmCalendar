@@ -431,28 +431,35 @@ Jesm.Calendar=Jesm.createClass({
 		this.getMes(this.andarMes(this.func.mesAtual, 1)).verificar();
 		this.atualizarMes();
 		this.func.pronto=true;
+
 		if(Jesm.Core.drag){
-			var drag=new Jesm.Drag(this.els.main, this.els.titulo.classList.add('grab'));
-			drag.data.calendar=this;
-			drag.onDragStart=this._dragStartAux;
-			drag.onDrop=this._dropAux;
+			this.els.titulo.classList.add('grab');
+			var drag = new Jesm.Drag(this.els.main, null, this.els.titulo);
+			drag.data.calendar = this;
+			drag.onDragStart = this._dragStartAux;
+			drag.onDrop = this._dropAux;
 		}
 	},
 	_dragStartAux:function(){
 		this.data.calendar.animas.opacidade.go(.25, [.7]);
 	},
 	_dropAux:function(){
+		Jesm.css(this.data.calendar.els.main, {
+			left: this.lastCoord[0],
+			top: this.lastCoord[1]
+		});
 		this.data.calendar.animas.opacidade.go(.25, [1]);
 	},
 	
-	setDiaInicio:function(d){
+	setDiaInicio: function(date){
 		if(!this.func.pronto)
-			this.func.mesAtual=this.toArray(this.cfg.diaInicio=d);
+			this.func.mesAtual = this.toArray(this.cfg.diaInicio = date);
 	}
 
 });
 
-Jesm.Calendar.limparData=function(d){
-	for(var strs=['Hours', 'Minutes', 'Seconds', 'Milliseconds'], x=strs.length;x--;d['set'+strs[x]](0));
-	return d;
+Jesm.Calendar.limparData = function(date){
+	for(var strs = ['Hours', 'Minutes', 'Seconds', 'Milliseconds'], len = strs.length; len--;)
+		date['set' + strs[len]](0);
+	return date;
 };
